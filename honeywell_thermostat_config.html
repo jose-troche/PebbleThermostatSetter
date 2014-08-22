@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      * {font-family:verdana; font-size: 20px}
+      input {border: 2px solid #a1a1a1; border-radius: 5px;}
+      label, .grp {display: block; padding: 5px;}
+      h1 {background: #85A3FF; padding: 10px}
+    </style>
+  </head>
+  <body>
+    <h1>Honeywell Site Credentials</h1>
+    <form action="pebblejs://close#">
+      <div class="grp"><label>Username:</label><input type="email" name="u" placeholder="user@email.com" value="" ></div>
+      <div class="grp"><label>Password:</label><input type="password" name="p"></div>
+      <div class="grp" style="padding-top:30px;">
+        <input type="submit" onclick="var f=document.forms[0], params={\'username\': f.u.value, \'password\': f.p.value}; f.action += encodeURIComponent(JSON.stringify(params));">
+        <input type="submit" value="Cancel">
+      </div>
+    </form>
+  </body>
+</html>

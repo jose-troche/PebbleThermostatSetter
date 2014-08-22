@@ -1,0 +1,9 @@
+
+# Ignore build generated files
+build
+
+# Sublime project files
+honeywell.sublime-*
+
+.DS_Store
+.lock-waf_darwin_build

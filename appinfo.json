@@ -1,0 +1,18 @@
+{
+  "uuid": "13e3a0bd-d988-4277-8ca3-367a8b684f7a",
+  "shortName": "Thermostat Setter",
+  "longName": "Pebble Thermostat Setter",
+  "companyName": "Jose Troche Coder",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "button": 0
+  },
+  "capabilities": [ "configurable" ],
+  "resources": {
+    "media": []
+  }
+}
