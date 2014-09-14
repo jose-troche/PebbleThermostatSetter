@@ -11,13 +11,10 @@ Pebble.addEventListener("appmessage", function(e) {
 function login(callbackFn){
     console.log("Logging in with user: "+localStorage.honeywellUsername);
     ajaxCall({
-        url: 'https://rs.alarmnet.com/TotalConnectComfort/',
-        /*params: JSON.stringify({
-            UserName: localStorage.honeywellUsername,
-            Password: localStorage.honeywellPassword,
-            timeOffset: "240"
-        }),*/
-        params: 'UserName='+localStorage.honeywellUsername+'&Password='+localStorage.honeywellPassword+'&timeOffset=240',
+        url: 'https://rs.alarmnet.com/TotalConnectComfort/', 
+        params: 'UserName=' + localStorage.honeywellUsername
+            + '&Password=' + localStorage.honeywellPassword
+            + '&timeOffset=240',
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         callback: callbackFn

@@ -13,6 +13,27 @@
   },
   "capabilities": [ "configurable" ],
   "resources": {
-    "media": []
+    "media": [
+      {
+        "type": "png",
+        "name": "UP",
+        "file": "img/up.png"
+      },
+      {
+        "type": "png",
+        "name": "DOWN",
+        "file": "img/down.png"
+      },
+      {
+        "type": "png",
+        "name": "LEFT",
+        "file": "img/left.png"
+      },
+      {
+        "type": "png",
+        "name": "THERMOMETER",
+        "file": "img/thermometer.png"
+      }
+    ]
   }
 }
