@@ -9,7 +9,12 @@
     "watchface": false
   },
   "appKeys": {
-    "button": 0
+    "thermostatIndex": 0,
+    "thermostatId": 1,
+    "thermostatName": 2,
+    "thermostatTemperature": 3,
+    "thermostatTargetTemperature": 4,
+    "temperatureChange": 5
   },
   "capabilities": [ "configurable" ],
   "resources": {

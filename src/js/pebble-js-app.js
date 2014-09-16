@@ -1,15 +1,46 @@
 Pebble.addEventListener("ready", function(e) {
-    console.log("Pebble app ready");   
+    console.log("Initializing thermostat data ...");
+    login(function(){
+        var parsedResponse = parseLoginResponse(this.responseText),
+            thermostats = parsedResponse.thermostats,
+            thermostatsCount = thermostats.length,
+            thermostat,
+            i;
+
+        if (thermostatsCount > 0){
+            for (i = 0; i < thermostatsCount; i++){
+                thermostat = {
+                    "thermostatIndex": i,
+                    "thermostatId": thermostats[i].id,
+                    "thermostatName": thermostats[i].name,
+                    "thermostatTemperature": thermostats[i].temperature
+                };
+                setTimeout(function(thermostatData){
+                    getTemperature(thermostatData.thermostatId, function(temperature){
+                        thermostatData.thermostatTargetTemperature = temperature.toString();
+                        Pebble.sendAppMessage(thermostatData);
+                    });
+                }, i*1000, thermostat);
+            }
+        }
+        else {
+            console.log("Error when trying to log in Honeywell site.");
+            console.log("Response text: " + this.responseText);
+            console.log("Response status: " + this.status);
+            console.log("Response Errors: " + parsedResponse.errors.join());
+        }
+    });
 });
 
 Pebble.addEventListener("appmessage", function(e) {
-    var button = parseInt(e.payload.button);
-    console.log("Button pressed: " + button);
-    setDeltaTemperature(button);
+    var temperatureChange = parseInt(e.payload.temperatureChange),
+        thermostatId = e.payload.thermostatId;
+    console.log("Temperature Change: " + temperatureChange + ". Device: " + thermostatId);
+    setDeltaTemperature(thermostatId, temperatureChange);
 });
 
 function login(callbackFn){
-    console.log("Logging in with user: "+localStorage.honeywellUsername);
+    console.log("Connecting as user: "+localStorage.honeywellUsername);
     ajaxCall({
         url: 'https://rs.alarmnet.com/TotalConnectComfort/', 
         params: 'UserName=' + localStorage.honeywellUsername
@@ -52,36 +83,32 @@ function setTemperature(deviceId, temperature){
             'Content-Type': 'application/json; charset=UTF-8'
         },
         callback: function(){
-            console.log(this.responseText);
+            var response = this.responseText,
+                success = response && JSON.parse(response).success;
+            if (success){
+                console.log("Target Temperature updated!");
+                Pebble.sendAppMessage({"thermostatTargetTemperature": temperature.toString()});
+            }
+            else {
+                console.log("Target Temperature failed to update. responsense:" + response);
+            }
         }
     });
 }
 
-function setDeltaTemperature(deltaTemperature){
+function setDeltaTemperature(deviceId, deltaTemperature){
     login(function(){
-        var parsedResponse = parseLoginResponse(this.responseText),
-            deviceId;
-
-        if (parsedResponse.deviceIds.length > 0){
-            deviceId = parsedResponse.deviceIds[0]; // Use first device
-            getTemperature(deviceId, function(currentTemperature){
-                setTemperature(deviceId, currentTemperature + deltaTemperature);
-            })
-        }
-        else {
-            console.log("Error when trying to log in Honeywell site.");
-            console.log("Response text: " + this.responseText);
-            console.log("Response status: " + this.status);
-            console.log("Response Errors: " + parsedResponse.errors.join());
-        }
+        getTemperature(deviceId, function(currentTemperature){
+            setTemperature(deviceId, currentTemperature + deltaTemperature);
+        })
     });
 }
 
-// Parses the login call response. Returns the deviceIds if the 
+// Parses the login call response. Returns the thermostats data if the
 // call was successful. Otherwise returns the errors.
 function parseLoginResponse(htmlString){
     var response = document.createElement("div"),
-        deviceIds = [],
+        thermostats = [],
         errors = [],
         nodeList,
         nodeListLength,
@@ -92,7 +119,12 @@ function parseLoginResponse(htmlString){
     nodeListLength = nodeList.length;
 
     for (i = 0; i < nodeListLength; i++){
-        deviceIds.push(nodeList[i].getAttribute('data-id'));
+        thermostats.push({
+            id: nodeList[i].getAttribute('data-id'),
+            temperature: parseInt(nodeList[i].querySelector('.tempValue').innerText.trim()),
+            name: nodeList[i].querySelector('.location-name').innerText.trim()
+                .toLowerCase().replace(/^./, function(m){return m.toUpperCase();})
+        });
     }
 
     if (nodeListLength < 1){
@@ -104,7 +136,7 @@ function parseLoginResponse(htmlString){
     }
 
     return {
-        deviceIds: deviceIds,
+        thermostats: thermostats,
         errors: errors
     }
 }
