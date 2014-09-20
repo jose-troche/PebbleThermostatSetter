@@ -20,7 +20,7 @@ static char temperature[5];
 
 static Window *s_window;
 static GBitmap *s_res_up;
-static GBitmap *s_res_left;
+static GBitmap *s_res_selector;
 static GBitmap *s_res_down;
 static GBitmap *s_res_thermometer;
 static GFont s_res_bitham_42_bold;
@@ -111,7 +111,7 @@ static void initialise_ui(void) {
   window_set_fullscreen(s_window, false);
   
   s_res_up = gbitmap_create_with_resource(RESOURCE_ID_UP);
-  s_res_left = gbitmap_create_with_resource(RESOURCE_ID_LEFT);
+  s_res_selector = gbitmap_create_with_resource(RESOURCE_ID_SELECTOR);
   s_res_down = gbitmap_create_with_resource(RESOURCE_ID_DOWN);
   s_res_thermometer = gbitmap_create_with_resource(RESOURCE_ID_THERMOMETER);
   s_res_bitham_42_bold = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
@@ -121,18 +121,18 @@ static void initialise_ui(void) {
   action_bar_layer_add_to_window(actionbarlayer, s_window);
   action_bar_layer_set_background_color(actionbarlayer, GColorWhite);
   action_bar_layer_set_icon(actionbarlayer, BUTTON_ID_UP, s_res_up);
-  action_bar_layer_set_icon(actionbarlayer, BUTTON_ID_SELECT, s_res_left);
+  action_bar_layer_set_icon(actionbarlayer, BUTTON_ID_SELECT, s_res_selector);
   action_bar_layer_set_icon(actionbarlayer, BUTTON_ID_DOWN, s_res_down);
   action_bar_layer_set_click_config_provider(actionbarlayer, click_config_provider);
   layer_add_child(window_get_root_layer(s_window), (Layer *)actionbarlayer);
   
   // bitmaplayer
-  bitmaplayer = bitmap_layer_create(GRect(9, 11, 25, 59));
+  bitmaplayer = bitmap_layer_create(GRect(5, 0, 41, 95));
   bitmap_layer_set_bitmap(bitmaplayer, s_res_thermometer);
   layer_add_child(window_get_root_layer(s_window), (Layer *)bitmaplayer);
   
   // degreelayer
-  degreelayer = text_layer_create(GRect(35, 16, 78, 42));
+  degreelayer = text_layer_create(GRect(40, 16, 78, 42));
   text_layer_set_background_color(degreelayer, GColorBlack);
   text_layer_set_text_color(degreelayer, GColorWhite);
   //set_text_degreelayer();
@@ -141,7 +141,7 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)degreelayer);
   
   // devicelayer
-  devicelayer = text_layer_create(GRect(13, 78, 100, 56));
+  devicelayer = text_layer_create(GRect(8, 92, 100, 56));
   text_layer_set_background_color(devicelayer, GColorBlack);
   text_layer_set_text_color(devicelayer, GColorWhite);
   //text_layer_set_text(devicelayer, devices[selected_device].name);
@@ -158,7 +158,7 @@ static void destroy_ui(void) {
   text_layer_destroy(degreelayer);
   text_layer_destroy(devicelayer);
   gbitmap_destroy(s_res_up);
-  gbitmap_destroy(s_res_left);
+  gbitmap_destroy(s_res_selector);
   gbitmap_destroy(s_res_down);
   gbitmap_destroy(s_res_thermometer);
 }

@@ -31,8 +31,8 @@
       },
       {
         "type": "png",
-        "name": "LEFT",
-        "file": "img/left.png"
+        "name": "SELECTOR",
+        "file": "img/selector.png"
       },
       {
         "type": "png",
