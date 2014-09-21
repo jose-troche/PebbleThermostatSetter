@@ -127,7 +127,7 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)actionbarlayer);
   
   // bitmaplayer
-  bitmaplayer = bitmap_layer_create(GRect(5, 0, 41, 95));
+  bitmaplayer = bitmap_layer_create(GRect(5, 0, 41, 94));
   bitmap_layer_set_bitmap(bitmaplayer, s_res_thermometer);
   layer_add_child(window_get_root_layer(s_window), (Layer *)bitmaplayer);
   
@@ -141,7 +141,7 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)degreelayer);
   
   // devicelayer
-  devicelayer = text_layer_create(GRect(8, 92, 100, 56));
+  devicelayer = text_layer_create(GRect(8, 93, 100, 56));
   text_layer_set_background_color(devicelayer, GColorBlack);
   text_layer_set_text_color(devicelayer, GColorWhite);
   //text_layer_set_text(devicelayer, devices[selected_device].name);
