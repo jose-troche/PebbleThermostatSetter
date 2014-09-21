@@ -32,12 +32,12 @@ static GFont s_res_bitham_42_bold;
 static GFont s_res_gothic_28;
 static ActionBarLayer *actionbarlayer;
 static BitmapLayer *bitmaplayer;
-static TextLayer *degreelayer;
-static TextLayer *thermostatlayer;
+static TextLayer *temperaturelayer;
+static TextLayer *namelayer;
 
 static void update_ui(void){
-  text_layer_set_text(degreelayer, thermostats[selected_thermostat].temperature);
-  text_layer_set_text(thermostatlayer, thermostats[selected_thermostat].name);
+  text_layer_set_text(temperaturelayer, thermostats[selected_thermostat].temperature);
+  text_layer_set_text(namelayer, thermostats[selected_thermostat].name);
 }
 
 // Process the message received in the watch from the phone
@@ -105,12 +105,12 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(thermostatlayer, "Raising ...");
+  text_layer_set_text(namelayer, "Raising ...");
   send_message(1, thermostats[selected_thermostat].id);
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(thermostatlayer, "Lowering ...");
+  text_layer_set_text(namelayer, "Lowering ...");
   send_message(-1, thermostats[selected_thermostat].id);
 }
 
@@ -146,20 +146,20 @@ static void initialise_ui(void) {
   bitmap_layer_set_bitmap(bitmaplayer, s_res_thermometer);
   layer_add_child(window_get_root_layer(s_window), (Layer *)bitmaplayer);
   
-  // degreelayer
-  degreelayer = text_layer_create(GRect(40, 16, 78, 42));
-  text_layer_set_background_color(degreelayer, GColorBlack);
-  text_layer_set_text_color(degreelayer, GColorWhite);
-  text_layer_set_text_alignment(degreelayer, GTextAlignmentRight);
-  text_layer_set_font(degreelayer, s_res_bitham_42_bold);
-  layer_add_child(window_get_root_layer(s_window), (Layer *)degreelayer);
+  // temperaturelayer
+  temperaturelayer = text_layer_create(GRect(40, 16, 78, 42));
+  text_layer_set_background_color(temperaturelayer, GColorBlack);
+  text_layer_set_text_color(temperaturelayer, GColorWhite);
+  text_layer_set_text_alignment(temperaturelayer, GTextAlignmentRight);
+  text_layer_set_font(temperaturelayer, s_res_bitham_42_bold);
+  layer_add_child(window_get_root_layer(s_window), (Layer *)temperaturelayer);
   
-  // thermostatlayer
-  thermostatlayer = text_layer_create(GRect(8, 93, 100, 56));
-  text_layer_set_background_color(thermostatlayer, GColorBlack);
-  text_layer_set_text_color(thermostatlayer, GColorWhite);
-  text_layer_set_font(thermostatlayer, s_res_gothic_28);
-  layer_add_child(window_get_root_layer(s_window), (Layer *)thermostatlayer);
+  // namelayer
+  namelayer = text_layer_create(GRect(8, 93, 100, 56));
+  text_layer_set_background_color(namelayer, GColorBlack);
+  text_layer_set_text_color(namelayer, GColorWhite);
+  text_layer_set_font(namelayer, s_res_gothic_28);
+  layer_add_child(window_get_root_layer(s_window), (Layer *)namelayer);
 
   update_ui();
 }
@@ -168,8 +168,8 @@ static void destroy_ui(void) {
   window_destroy(s_window);
   action_bar_layer_destroy(actionbarlayer);
   bitmap_layer_destroy(bitmaplayer);
-  text_layer_destroy(degreelayer);
-  text_layer_destroy(thermostatlayer);
+  text_layer_destroy(temperaturelayer);
+  text_layer_destroy(namelayer);
   gbitmap_destroy(s_res_up);
   gbitmap_destroy(s_res_selector);
   gbitmap_destroy(s_res_down);
