@@ -13,11 +13,14 @@ Pebble.addEventListener("ready", function(e) {
                     "thermostatIndex": i,
                     "thermostatId": thermostats[i].id,
                     "thermostatName": thermostats[i].name,
-                    "thermostatTemperature": thermostats[i].temperature
                 };
+
+                // Get the target (desired) temperature per each thermostat and
+                // send the data for each thermostat to the watch at 1 second intervals
                 setTimeout(function(thermostatData){
                     getTemperature(thermostatData.thermostatId, function(temperature){
-                        thermostatData.thermostatTargetTemperature = temperature.toString();
+                        thermostatData.thermostatTemperature = 
+                            temperature + "\u00B0"; // Unicode for °
                         Pebble.sendAppMessage(thermostatData);
                     });
                 }, i*1000, thermostat);
@@ -87,7 +90,7 @@ function setTemperature(deviceId, temperature){
                 success = response && JSON.parse(response).success;
             if (success){
                 console.log("Target Temperature updated!");
-                Pebble.sendAppMessage({"thermostatTargetTemperature": temperature.toString()});
+                Pebble.sendAppMessage({"thermostatTemperature": temperature + "\u00B0"});
             }
             else {
                 console.log("Target Temperature failed to update. responsense:" + response);
@@ -121,7 +124,8 @@ function parseLoginResponse(htmlString){
     for (i = 0; i < nodeListLength; i++){
         thermostats.push({
             id: nodeList[i].getAttribute('data-id'),
-            temperature: parseInt(nodeList[i].querySelector('.tempValue').innerText.trim()),
+            indoorTemperature: parseInt(nodeList[i].querySelector('.tempValue')
+                .innerText.trim()),
             name: nodeList[i].querySelector('.location-name').innerText.trim()
                 .toLowerCase().replace(/^./, function(m){return m.toUpperCase();})
         });
@@ -142,6 +146,14 @@ function parseLoginResponse(htmlString){
 }
 
 // -------------- Configuration ----------------
+// This configuration section generates an html 
+// form on the fly to save into HTML5 local storage
+// the username and password of the Honeywell
+// website that receives commands to query and
+// update the thermostat data.
+// Once they are saved, they are used by default
+// to submit those commands
+
 Pebble.addEventListener("showConfiguration", function() {
   console.log("Showing configuration");
   Pebble.openURL('data:text/html,<html> <head> <meta name="viewport" content="width=device-width, initial-scale=1"> <style> * {font-family:verdana; font-size: 20px} input {border: 2px solid #a1a1a1; border-radius: 5px;} label, .grp {display: block; padding: 5px;} h1 {background: #85A3FF; padding: 10px} </style> </head> <body> <h1>Honeywell Site Credentials</h1> <form action="pebblejs://close#"> <div class="grp"><label>Username:</label><input type="email" name="u" placeholder="user@email.com" value="'+(localStorage.honeywellUsername||'')+'" ></div> <div class="grp"><label>Password:</label><input type="password" name="p"></div> <div class="grp" style="padding-top:30px;"> <input type="submit" onclick="var f=document.forms[0], params={\'username\': f.u.value, \'password\': f.p.value}; f.action += encodeURIComponent(JSON.stringify(params));"> <input type="submit" value="Cancel"> </div> </form> </body> </html><!--.html');
@@ -149,6 +161,7 @@ Pebble.addEventListener("showConfiguration", function() {
 
 Pebble.addEventListener("webviewclosed", function(e) {
   var params = JSON.parse(decodeURIComponent(e.response));
+
   // Store credentials in a localStorage object
   if (params.username && params.password){
     localStorage.honeywellUsername = params.username;
@@ -159,6 +172,7 @@ Pebble.addEventListener("webviewclosed", function(e) {
 // ----------- End of Configuration -------------
 
 
+// A helper function to make ajax Calls
 function ajaxCall(options){
     var xhr = new XMLHttpRequest(),
         method = (options.method || 'GET').toUpperCase(),
