@@ -1,6 +1,6 @@
 #include <pebble.h>
 
-#define MAX_DEVICES 2
+#define MAX_THERMOSTATS 2
 
 enum {
   TEMPERATURE_CHANGE_KEY,
@@ -10,18 +10,18 @@ enum {
   THERMOSTAT_TEMPERATURE_KEY
 };
 
-struct device {
+struct thermostat {
   char id[20];
   char name[50];
   char temperature[6];
 };
 
-struct device devices[MAX_DEVICES] = {
+struct thermostat thermostats[MAX_THERMOSTATS] = {
   {"1", "Loading ...", "0°"},
   {"2", "Loading ...", "0°"}
 };
 
-static int selected_device = 0;
+static int selected_thermostat = 0;
 
 static Window *s_window;
 static GBitmap *s_res_up;
@@ -33,11 +33,11 @@ static GFont s_res_gothic_28;
 static ActionBarLayer *actionbarlayer;
 static BitmapLayer *bitmaplayer;
 static TextLayer *degreelayer;
-static TextLayer *devicelayer;
+static TextLayer *thermostatlayer;
 
 static void update_ui(void){
-  text_layer_set_text(degreelayer, devices[selected_device].temperature);
-  text_layer_set_text(devicelayer, devices[selected_device].name);
+  text_layer_set_text(degreelayer, thermostats[selected_thermostat].temperature);
+  text_layer_set_text(thermostatlayer, thermostats[selected_thermostat].name);
 }
 
 static void in_received_handler(DictionaryIterator *iter, void *context) {
@@ -49,21 +49,21 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
 
   if (thermostat_index_tuple){
     i = thermostat_index_tuple->value->uint8;
-    if (i < MAX_DEVICES){
+    if (i < MAX_THERMOSTATS){
 
       thermostat_id_tuple = dict_find(iter, THERMOSTAT_ID_KEY);
       if (thermostat_id_tuple){
-        strcpy(devices[i].id, thermostat_id_tuple->value->cstring);
+        strcpy(thermostats[i].id, thermostat_id_tuple->value->cstring);
       }
 
       thermostat_name_tuple = dict_find(iter, THERMOSTAT_NAME_KEY);
       if (thermostat_name_tuple){
-        strcpy(devices[i].name, thermostat_name_tuple->value->cstring);
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "Name: %s", devices[i].name);
+        strcpy(thermostats[i].name, thermostat_name_tuple->value->cstring);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Name: %s", thermostats[i].name);
       }
 
       if (thermostat_temperature_tuple) {
-        strcpy(devices[i].temperature, thermostat_temperature_tuple->value->cstring);
+        strcpy(thermostats[i].temperature, thermostat_temperature_tuple->value->cstring);
       }
 
       update_ui();
@@ -71,13 +71,13 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   }
   else {
     if (thermostat_temperature_tuple) {
-      strcpy(devices[selected_device].temperature, thermostat_temperature_tuple->value->cstring);
+      strcpy(thermostats[selected_thermostat].temperature, thermostat_temperature_tuple->value->cstring);
       update_ui();
     }
   }
 }
 
-static void send_cmd(int delta, char * device_id) {
+static void send_cmd(int delta, char * thermostat_id) {
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
 
@@ -88,8 +88,8 @@ static void send_cmd(int delta, char * device_id) {
   Tuplet delta_tuple = TupletInteger(TEMPERATURE_CHANGE_KEY, delta);
   dict_write_tuplet(iter, &delta_tuple);
 
-  Tuplet device_tuple = TupletCString(THERMOSTAT_ID_KEY, device_id);
-  dict_write_tuplet(iter, &device_tuple);
+  Tuplet thermostat_tuple = TupletCString(THERMOSTAT_ID_KEY, thermostat_id);
+  dict_write_tuplet(iter, &thermostat_tuple);
 
   dict_write_end(iter);
 
@@ -98,18 +98,18 @@ static void send_cmd(int delta, char * device_id) {
 
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  selected_device = (selected_device + 1) % MAX_DEVICES;
+  selected_thermostat = (selected_thermostat + 1) % MAX_THERMOSTATS;
   update_ui();
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(devicelayer, "Raising ...");
-  send_cmd(1, devices[selected_device].id);
+  text_layer_set_text(thermostatlayer, "Raising ...");
+  send_cmd(1, thermostats[selected_thermostat].id);
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(devicelayer, "Lowering ...");
-  send_cmd(-1, devices[selected_device].id);
+  text_layer_set_text(thermostatlayer, "Lowering ...");
+  send_cmd(-1, thermostats[selected_thermostat].id);
 }
 
 static void click_config_provider(void *context) {
@@ -152,12 +152,12 @@ static void initialise_ui(void) {
   text_layer_set_font(degreelayer, s_res_bitham_42_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)degreelayer);
   
-  // devicelayer
-  devicelayer = text_layer_create(GRect(8, 93, 100, 56));
-  text_layer_set_background_color(devicelayer, GColorBlack);
-  text_layer_set_text_color(devicelayer, GColorWhite);
-  text_layer_set_font(devicelayer, s_res_gothic_28);
-  layer_add_child(window_get_root_layer(s_window), (Layer *)devicelayer);
+  // thermostatlayer
+  thermostatlayer = text_layer_create(GRect(8, 93, 100, 56));
+  text_layer_set_background_color(thermostatlayer, GColorBlack);
+  text_layer_set_text_color(thermostatlayer, GColorWhite);
+  text_layer_set_font(thermostatlayer, s_res_gothic_28);
+  layer_add_child(window_get_root_layer(s_window), (Layer *)thermostatlayer);
 
   update_ui();
 }
@@ -167,7 +167,7 @@ static void destroy_ui(void) {
   action_bar_layer_destroy(actionbarlayer);
   bitmap_layer_destroy(bitmaplayer);
   text_layer_destroy(degreelayer);
-  text_layer_destroy(devicelayer);
+  text_layer_destroy(thermostatlayer);
   gbitmap_destroy(s_res_up);
   gbitmap_destroy(s_res_selector);
   gbitmap_destroy(s_res_down);

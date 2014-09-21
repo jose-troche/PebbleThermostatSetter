@@ -38,7 +38,7 @@ Pebble.addEventListener("ready", function(e) {
 Pebble.addEventListener("appmessage", function(e) {
     var temperatureChange = parseInt(e.payload.temperatureChange),
         thermostatId = e.payload.thermostatId;
-    console.log("Temperature Change: " + temperatureChange + ". Device: " + thermostatId);
+    console.log("Temperature Change: " + temperatureChange + ". Thermostat: " + thermostatId);
     setDeltaTemperature(thermostatId, temperatureChange);
 });
 
@@ -55,29 +55,29 @@ function login(callbackFn){
     });
 }
 
-function getTemperature(deviceId, callbackFn){
+function getTemperature(thermostatId, callbackFn){
     ajaxCall({
-        url: 'https://rs.alarmnet.com/TotalConnectComfort/Device/CheckDataSession/' + deviceId,
+        url: 'https://rs.alarmnet.com/TotalConnectComfort/Device/CheckDataSession/' + thermostatId,
         headers: {'X-Requested-With': 'XMLHttpRequest'},
         callback: function(){
             try {
                 var temperature = JSON.parse(this.responseText).latestData.uiData.CoolSetpoint;
-                console.log("Device " + deviceId + " current temperature: " + temperature);
+                console.log("Thermostat " + thermostatId + " current temperature: " + temperature);
                 callbackFn(temperature);
             }
             catch (e){
-                console.error('Unable to get current temperature for device ' + deviceId + ". Error: " + e);
+                console.error('Unable to get current temperature for thermostat ' + thermostatId + ". Error: " + e);
                 console.log("Response text: " + this.responseText);
             }
         }
     });
 }
 
-function setTemperature(deviceId, temperature){
+function setTemperature(thermostatId, temperature){
     ajaxCall({
         url: 'https://rs.alarmnet.com/TotalConnectComfort/Device/SubmitControlScreenChanges',
         params: JSON.stringify({
-            DeviceID: parseInt(deviceId),
+            DeviceID: parseInt(thermostatId),
             CoolSetPoint: temperature
         }),
         method: 'POST',
@@ -99,10 +99,10 @@ function setTemperature(deviceId, temperature){
     });
 }
 
-function setDeltaTemperature(deviceId, deltaTemperature){
+function setDeltaTemperature(thermostatId, deltaTemperature){
     login(function(){
-        getTemperature(deviceId, function(currentTemperature){
-            setTemperature(deviceId, currentTemperature + deltaTemperature);
+        getTemperature(thermostatId, function(currentTemperature){
+            setTemperature(thermostatId, currentTemperature + deltaTemperature);
         })
     });
 }
