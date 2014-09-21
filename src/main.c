@@ -52,7 +52,7 @@ enum {
 static void receive_message(DictionaryIterator *iter, void *context) {
   Tuple *thermostat_id_tuple;
   Tuple *thermostat_name_tuple;
-  Tuple *thermostat_temperature_tuple = dict_find(iter, THERMOSTAT_TEMPERATURE_KEY);
+  Tuple *thermostat_temperature_tuple;
   Tuple *thermostat_index_tuple = dict_find(iter, THERMOSTAT_INDEX_KEY);
   int i;
 
@@ -68,9 +68,9 @@ static void receive_message(DictionaryIterator *iter, void *context) {
       thermostat_name_tuple = dict_find(iter, THERMOSTAT_NAME_KEY);
       if (thermostat_name_tuple){
         strcpy(thermostats[i].name, thermostat_name_tuple->value->cstring);
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "Name: %s", thermostats[i].name);
       }
 
+      thermostat_temperature_tuple = dict_find(iter, THERMOSTAT_TEMPERATURE_KEY);
       if (thermostat_temperature_tuple) {
         strcpy(thermostats[i].temperature,
           thermostat_temperature_tuple->value->cstring);
@@ -79,30 +79,29 @@ static void receive_message(DictionaryIterator *iter, void *context) {
       update_ui();
     }
   }
-  else {
-    if (thermostat_temperature_tuple) {
-      strcpy(thermostats[selected_thermostat].temperature,
-        thermostat_temperature_tuple->value->cstring);
-      update_ui();
-    }
-  }
 }
 
 // Sends message from the watch to the phone
-static void send_message(int temperature_change, char * thermostat_id) {
+static void send_message(int temperature_change) {
   DictionaryIterator *iter;
+
   app_message_outbox_begin(&iter);
 
   if (iter == NULL) {
     return;
   }
 
+  Tuplet thermostat_id_tuple =
+    TupletCString(THERMOSTAT_ID_KEY, thermostats[selected_thermostat].id);
+  dict_write_tuplet(iter, &thermostat_id_tuple);
+
+  Tuplet thermostat_index_tuple =
+    TupletInteger(THERMOSTAT_INDEX_KEY, selected_thermostat);
+  dict_write_tuplet(iter, &thermostat_index_tuple);
+
   Tuplet temperature_change_tuple =
     TupletInteger(TEMPERATURE_CHANGE_KEY, temperature_change);
   dict_write_tuplet(iter, &temperature_change_tuple);
-
-  Tuplet thermostat_tuple = TupletCString(THERMOSTAT_ID_KEY, thermostat_id);
-  dict_write_tuplet(iter, &thermostat_tuple);
 
   dict_write_end(iter);
 
@@ -116,12 +115,12 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(namelayer, "Raising ...");
-  send_message(1, thermostats[selected_thermostat].id);
+  send_message(1);
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(namelayer, "Lowering ...");
-  send_message(-1, thermostats[selected_thermostat].id);
+  send_message(-1);
 }
 
 static void click_config_provider(void *context) {
