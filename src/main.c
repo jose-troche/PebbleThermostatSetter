@@ -48,6 +48,7 @@ enum {
 };
 
 // Process the message received in the watch from the phone
+// Updates the array of thermostats with the received data
 static void receive_message(DictionaryIterator *iter, void *context) {
   Tuple *thermostat_id_tuple;
   Tuple *thermostat_name_tuple;
@@ -108,7 +109,6 @@ static void send_message(int temperature_change, char * thermostat_id) {
   app_message_outbox_send();
 }
 
-
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   selected_thermostat = (selected_thermostat + 1) % MAX_THERMOSTATS;
   update_ui();
@@ -130,7 +130,7 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 
-static void initialise_ui(void) {
+static void initialize_ui(void) {
   s_window = window_create();
   window_set_background_color(s_window, GColorBlack);
   window_set_fullscreen(s_window, false);
@@ -141,6 +141,7 @@ static void initialise_ui(void) {
   s_res_thermometer = gbitmap_create_with_resource(RESOURCE_ID_THERMOMETER);
   s_res_bitham_42_bold = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
   s_res_gothic_28 = fonts_get_system_font(FONT_KEY_GOTHIC_28);
+
   // actionbarlayer
   actionbarlayer = action_bar_layer_create();
   action_bar_layer_add_to_window(actionbarlayer, s_window);
@@ -190,15 +191,15 @@ static void handle_window_unload(Window* window) {
   destroy_ui();
 }
 
-static void show_mainwindow(void) {
-  initialise_ui();
+static void show_main_window(void) {
+  initialize_ui();
   window_set_window_handlers(s_window, (WindowHandlers) {
     .unload = handle_window_unload,
   });
   window_stack_push(s_window, true);
 }
 
-static void init(void) {
+static void initialize_messaging(void) {
   app_message_register_inbox_received(receive_message);
 
   const int inbound_size = 64;
@@ -207,8 +208,7 @@ static void init(void) {
 }
 
 int main(void) {
-  init();
-  show_mainwindow();
+  initialize_messaging();
+  show_main_window();
   app_event_loop();
-  return 0;
 }
