@@ -1,26 +1,22 @@
 #include <pebble.h>
 
+// The maximum number of items in the array of thermostats
 #define MAX_THERMOSTATS 2
 
-enum {
-  TEMPERATURE_CHANGE_KEY,
-  THERMOSTAT_INDEX_KEY,
-  THERMOSTAT_ID_KEY,
-  THERMOSTAT_NAME_KEY,
-  THERMOSTAT_TEMPERATURE_KEY
-};
-
+// Data associated with a thermostat
 struct thermostat {
   char id[20];
   char name[50];
   char temperature[6];
 };
 
+// Array that holds data for all thermostats
 struct thermostat thermostats[MAX_THERMOSTATS] = {
   {"1", "Loading ...", "0°"},
   {"2", "Loading ...", "0°"}
 };
 
+// The currently selected thermostat
 static int selected_thermostat = 0;
 
 static Window *s_window;
@@ -35,10 +31,21 @@ static BitmapLayer *bitmaplayer;
 static TextLayer *temperaturelayer;
 static TextLayer *namelayer;
 
+// Updates the UI with current data from the array of thermostats
 static void update_ui(void){
   text_layer_set_text(temperaturelayer, thermostats[selected_thermostat].temperature);
   text_layer_set_text(namelayer, thermostats[selected_thermostat].name);
 }
+
+// The keys for the messages send from/to the phone. Corresponds to the
+// AppKeys in appinfo.json
+enum {
+  TEMPERATURE_CHANGE_KEY,
+  THERMOSTAT_INDEX_KEY,
+  THERMOSTAT_ID_KEY,
+  THERMOSTAT_NAME_KEY,
+  THERMOSTAT_TEMPERATURE_KEY
+};
 
 // Process the message received in the watch from the phone
 static void receive_message(DictionaryIterator *iter, void *context) {
@@ -50,7 +57,7 @@ static void receive_message(DictionaryIterator *iter, void *context) {
 
   if (thermostat_index_tuple){
     i = thermostat_index_tuple->value->uint8;
-    if (i < MAX_THERMOSTATS){
+    if (i < MAX_THERMOSTATS){ // Make sure the array does not overflow
 
       thermostat_id_tuple = dict_find(iter, THERMOSTAT_ID_KEY);
       if (thermostat_id_tuple){
@@ -64,7 +71,8 @@ static void receive_message(DictionaryIterator *iter, void *context) {
       }
 
       if (thermostat_temperature_tuple) {
-        strcpy(thermostats[i].temperature, thermostat_temperature_tuple->value->cstring);
+        strcpy(thermostats[i].temperature,
+          thermostat_temperature_tuple->value->cstring);
       }
 
       update_ui();
@@ -72,14 +80,15 @@ static void receive_message(DictionaryIterator *iter, void *context) {
   }
   else {
     if (thermostat_temperature_tuple) {
-      strcpy(thermostats[selected_thermostat].temperature, thermostat_temperature_tuple->value->cstring);
+      strcpy(thermostats[selected_thermostat].temperature,
+        thermostat_temperature_tuple->value->cstring);
       update_ui();
     }
   }
 }
 
 // Sends message from the watch to the phone
-static void send_message(int delta, char * thermostat_id) {
+static void send_message(int temperature_change, char * thermostat_id) {
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
 
@@ -87,8 +96,9 @@ static void send_message(int delta, char * thermostat_id) {
     return;
   }
 
-  Tuplet delta_tuple = TupletInteger(TEMPERATURE_CHANGE_KEY, delta);
-  dict_write_tuplet(iter, &delta_tuple);
+  Tuplet temperature_change_tuple =
+    TupletInteger(TEMPERATURE_CHANGE_KEY, temperature_change);
+  dict_write_tuplet(iter, &temperature_change_tuple);
 
   Tuplet thermostat_tuple = TupletCString(THERMOSTAT_ID_KEY, thermostat_id);
   dict_write_tuplet(iter, &thermostat_tuple);

@@ -39,7 +39,7 @@ Pebble.addEventListener("appmessage", function(e) {
     var temperatureChange = parseInt(e.payload.temperatureChange),
         thermostatId = e.payload.thermostatId;
     console.log("Temperature Change: " + temperatureChange + ". Thermostat: " + thermostatId);
-    setDeltaTemperature(thermostatId, temperatureChange);
+    changeTemperature(thermostatId, temperatureChange);
 });
 
 function login(callbackFn){
@@ -99,10 +99,10 @@ function setTemperature(thermostatId, temperature){
     });
 }
 
-function setDeltaTemperature(thermostatId, deltaTemperature){
+function changeTemperature(thermostatId, temperatureChange){
     login(function(){
         getTemperature(thermostatId, function(currentTemperature){
-            setTemperature(thermostatId, currentTemperature + deltaTemperature);
+            setTemperature(thermostatId, currentTemperature + temperatureChange);
         })
     });
 }
