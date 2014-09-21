@@ -40,7 +40,8 @@ static void update_ui(void){
   text_layer_set_text(thermostatlayer, thermostats[selected_thermostat].name);
 }
 
-static void in_received_handler(DictionaryIterator *iter, void *context) {
+// Process the message received in the watch from the phone
+static void receive_message(DictionaryIterator *iter, void *context) {
   Tuple *thermostat_id_tuple;
   Tuple *thermostat_name_tuple;
   Tuple *thermostat_temperature_tuple = dict_find(iter, THERMOSTAT_TEMPERATURE_KEY);
@@ -77,7 +78,8 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   }
 }
 
-static void send_cmd(int delta, char * thermostat_id) {
+// Sends message from the watch to the phone
+static void send_message(int delta, char * thermostat_id) {
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
 
@@ -104,12 +106,12 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(thermostatlayer, "Raising ...");
-  send_cmd(1, thermostats[selected_thermostat].id);
+  send_message(1, thermostats[selected_thermostat].id);
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(thermostatlayer, "Lowering ...");
-  send_cmd(-1, thermostats[selected_thermostat].id);
+  send_message(-1, thermostats[selected_thermostat].id);
 }
 
 static void click_config_provider(void *context) {
@@ -187,7 +189,7 @@ static void show_mainwindow(void) {
 }
 
 static void init(void) {
-  app_message_register_inbox_received(in_received_handler);
+  app_message_register_inbox_received(receive_message);
 
   const int inbound_size = 64;
   const int outbound_size = 64;
