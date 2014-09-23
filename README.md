@@ -24,7 +24,9 @@ pebble install --logs
 ```
 * Done!
 
-The app will be deployed to the watch and the phone will display the settings page to configure username and password, which will be cached from then on.
+Credentials Configuration
+=========================
+The app will be deployed to the watch and the phone will display the settings page to configure username and password, which will be cached from then on. The credentials can also be updated later via the Settings gear.
 
 ![Mobile App](https://raw.githubusercontent.com/jose-troche/Documentation/master/PebbleThermostatSetter/ConfigurationSettings.png)
 
@@ -32,7 +34,7 @@ Understanding the source code
 =============================
 The heart of the implementation resides in the two files inside the [`src`](https://github.com/jose-troche/PebbleThermostatSetter/tree/master/src) folder. The c file will be compiled and installed in the watch. The javascript file will be executed by the generic Pebble Application on the phone. So no new application has to be installed on the phone. Even more, the javascript file will run with no modifications in Android or iPhone.
 
-The javascript file contains the logic that connects to the thermostat services in order to read and update their data, including temperature. The c file has the logic to display the information in the watch and the ability to exchange messages with the javascript file on the phone.
+The javascript file contains the logic that connects to the thermostat services in order to read and update its data, including temperature. The c file has the logic to display the information in the watch and the ability to exchange data messages with the javascript file on the phone.
 
 The javascript file cannot be split in modules, but the c file can potentially be modularized. I decided to leave it as one file, because seems to be easier to follow the logic in a single place.
 
