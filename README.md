@@ -3,7 +3,7 @@ Pebble Thermostat Setter
 
 Pebble smart watch application to adjust the temperature of a home by controlling a Wi-Fi thermostat from the watch. The application is self-contained and has no external dependencies, except for the Pebble SDK.
 
-The application supports multiple thermostats. The middle button selects a specific thermostat, while the up and down buttons raise and lower the temperature of the selected thermostat. The watch display shows the name of the selected thermostat and its temperature.
+Multiple thermostats can be controlled. The middle button selects a specific thermostat, while the up and down buttons raise and lower the temperature of the selected thermostat. The watch display shows the name of the selected thermostat and its temperature.
 
 ![Watch App](https://raw.githubusercontent.com/jose-troche/Documentation/master/PebbleThermostatSetter/PebbleThermostatSetterDiagram.png)
 
