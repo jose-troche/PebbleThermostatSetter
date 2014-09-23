@@ -1,13 +1,12 @@
 Pebble Thermostat Setter
 ========================
 
-Pebble smart watch application to set the temperature of a home by controlling a wi-fi thermostat from the watch.
+Pebble smart watch application to adjust the temperature of a home by controlling a Wi-Fi thermostat from the watch. The application is self-contained and has no external dependencies, except for the Pebble SDK.
 
-The application supports multiple thermostats. The middle button selects a specific thermostat, while the up and down buttons raise and lower the temperature of the selected thermostat. The watch display shows the name of the selected thermostat and its temperature (see image below).
+The application supports multiple thermostats. The middle button selects a specific thermostat, while the up and down buttons raise and lower the temperature of the selected thermostat. The watch display shows the name of the selected thermostat and its temperature.
 
 ![Watch App](https://raw.githubusercontent.com/jose-troche/Documentation/master/PebbleThermostatSetter/PebbleThermostatSetterDiagram.png)
 
-The application is self contained and has no external dependencies, except for the Pebble SDK.
 
 Installing the Application
 ==========================
@@ -31,7 +30,7 @@ The app will be deployed to the watch and the phone will display the settings pa
 
 Understanding the source code
 =============================
-The heart of the implementation resides in the two files inside the `src` folder. The c file will be compiled and installed in the watch. The javascript file will be executed by the generic Pebble Application on the phone. So no new application has to be installed on the phone. Even more, the javascript file will run with no modifications in Android or iPhone.
+The heart of the implementation resides in the two files inside the [`src`](https://github.com/jose-troche/PebbleThermostatSetter/tree/master/src) folder. The c file will be compiled and installed in the watch. The javascript file will be executed by the generic Pebble Application on the phone. So no new application has to be installed on the phone. Even more, the javascript file will run with no modifications in Android or iPhone.
 
 The javascript file contains the logic that connects to the thermostat services in order to read and update their data, including temperature. The c file has the logic to display the information in the watch and the ability to exchange messages with the javascript file on the phone.
 
