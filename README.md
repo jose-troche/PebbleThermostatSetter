@@ -26,7 +26,7 @@ pebble install --logs
 
 Credentials Configuration
 =========================
-The app will be deployed to the watch and the phone will display the settings page to configure username and password, which will be cached from then on. The credentials can also be updated later via the Settings gear.
+The first time the app is installed the phone will display the settings page to configure username and password, which will be cached from then on. These credentials are used to connect to the thermostat website. The credentials can also be updated later via the Settings gear.
 
 ![Mobile App](https://raw.githubusercontent.com/jose-troche/Documentation/master/PebbleThermostatSetter/ConfigurationSettings.png)
 
