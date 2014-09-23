@@ -4,7 +4,7 @@
   "longName": "Pebble Thermostat Setter",
   "companyName": "Jose Troche Coder",
   "versionCode": 1,
-  "versionLabel": "1.0.0",
+  "versionLabel": "1.0",
   "watchapp": {
     "watchface": false
   },
